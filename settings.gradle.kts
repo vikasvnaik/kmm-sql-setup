@@ -28,6 +28,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "kmm-compose-setup"
+rootProject.name = "kmm-sql-setup"
 include(":androidApp")
 include(":shared")

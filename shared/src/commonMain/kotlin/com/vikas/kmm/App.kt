@@ -11,13 +11,15 @@ import androidx.compose.ui.graphics.Color
 
 @OptIn(ExperimentalResourceApi::class)
 @Composable
-fun App() {
+fun App(appDao: AppDao) {
     MaterialTheme {
         Surface(
             modifier = Modifier.fillMaxSize(),
             color = Color.White
         ) {
+            appDao.insertData()
             Text(text = Greeting().greet())
+            Text(text = appDao.getData().toString())
         }
     }
 }
