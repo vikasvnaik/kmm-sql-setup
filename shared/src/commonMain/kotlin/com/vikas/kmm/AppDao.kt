@@ -2,10 +2,29 @@ package com.vikas.kmm
 
 import com.vikas.kmm.data.Database
 import com.vikas.kmm.db.Hello
+import io.github.aakira.napier.Napier
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.logging.LogLevel
+import io.ktor.client.plugins.logging.Logger
+import io.ktor.client.plugins.logging.Logging
+import io.ktor.client.request.get
+import io.ktor.client.statement.HttpResponse
+import kotlinx.serialization.json.Json
 
 class AppDao(databaseDriverFactory: DatabaseDriverFactory) {
     var database = Database(databaseDriverFactory)
     private val platform: Platform = getPlatform()
+
+    private val httpClient = httpClient {
+        install(Logging) {
+            level = LogLevel.HEADERS
+            logger = object : Logger {
+                override fun log(message: String) {
+                    Napier.v("HTTP call : $message")
+                } } }
+        install(ContentNegotiation) {
+             Json { ignoreUnknownKeys = true }
+        } }.also { initLogger() }
 
     fun insertData() {
         database.insert("hello")
@@ -17,5 +36,10 @@ class AppDao(databaseDriverFactory: DatabaseDriverFactory) {
     }
     fun greet(): String {
         return "Hello, ${platform.name}!"
+    }
+
+    suspend fun getRemoteDta(): HttpResponse {
+        return httpClient.get("https://dummy.restapiexample.com/api/v1/employees")
+
     }
 }
