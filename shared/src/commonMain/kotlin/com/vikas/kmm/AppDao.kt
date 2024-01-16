@@ -2,13 +2,18 @@ package com.vikas.kmm
 
 import com.vikas.kmm.data.Database
 import com.vikas.kmm.db.Hello
+import com.vikas.kmm.utils.AppContentNegotiation
 import io.github.aakira.napier.Napier
+import io.ktor.client.plugins.addDefaultResponseValidation
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.request.get
 import io.ktor.client.statement.HttpResponse
+import io.ktor.http.ContentType
+import io.ktor.serialization.kotlinx.KotlinxSerializationConverter
+import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
 class AppDao(databaseDriverFactory: DatabaseDriverFactory) {
@@ -22,8 +27,12 @@ class AppDao(databaseDriverFactory: DatabaseDriverFactory) {
                 override fun log(message: String) {
                     Napier.v("HTTP call : $message")
                 } } }
-        install(ContentNegotiation) {
-             Json { ignoreUnknownKeys = true }
+        install(AppContentNegotiation) {
+            json(Json {
+                ignoreUnknownKeys = true
+                isLenient = true
+            })
+            addDefaultResponseValidation()
         } }.also { initLogger() }
 
     fun insertData() {
